@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: interview-sim-backend
+  liquibase:
+    enabled: true
+    change-log: classpath:migrations/changelog.yml
