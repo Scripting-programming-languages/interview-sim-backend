@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-schema
+      author: v.a.yanchenko
+      changes:
+        - sqlFile:
+            path: init/create_schema.sql
+            relativeToChangeLogFile: true
