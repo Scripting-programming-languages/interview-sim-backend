@@ -1,0 +1,507 @@
+openapi: 3.0.3
+info:
+  title: Interview Simulator API
+  version: 1.0.0
+
+paths:
+  /auth/register:
+    post:
+      summary: Регистрация нового пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/login:
+    post:
+      summary: Авторизация пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /categories:
+    get:
+      summary: Список всех категорий
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: Список категорий
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /courses:
+    get:
+      summary: Список всех курсов
+      tags:
+        - Courses
+      parameters:
+        - $ref: '#/components/parameters/CategoryIdQuery'
+        - $ref: '#/components/parameters/LevelQuery'
+      responses:
+        '200':
+          description: Список курсов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /courses/{course_id}:
+    get:
+      summary: Получить подробности курса по ID
+      tags:
+        - Courses
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Детальная информация о курсе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{course_id}/attempts:
+    post:
+      summary: Начать новую попытку прохождения курса
+      tags:
+        - Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '201':
+          description: Попытка успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttemptStartResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attempts/{attempt_id}/questions/{question_id}/answer:
+    post:
+      summary: Отправка ответа пользователя
+      tags:
+        - Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AttemptIdPath'
+        - $ref: '#/components/parameters/QuestionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAnswerRequest'
+      responses:
+        '200':
+          description: Ответ успешно сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAnswerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attempts/{attempt_id}/finish:
+    patch:
+      summary: Завершение попытки
+      tags:
+        - Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AttemptIdPath'
+      responses:
+        '200':
+          description: Попытка успешно завершена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttemptDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attempts/{attempt_id}:
+    get:
+      summary: Получить подробности попытки
+      tags:
+        - Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AttemptIdPath'
+      responses:
+        '200':
+          description: Детальная информация о попытке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttemptDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user_id}/attempts:
+    get:
+      summary: История попыток пользователя
+      tags:
+        - Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Список всех попыток пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttemptSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    CourseIdPath:
+      name: course_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    AttemptIdPath:
+      name: attempt_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    QuestionIdPath:
+      name: question_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    CategoryIdQuery:
+      name: category_id
+      in: query
+      required: false
+      schema:
+        type: integer
+    LevelQuery:
+      name: level
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - junior
+          - middle
+          - senior
+
+  responses:
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Неавторизованный доступ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    # --- AUTH & USER ---
+    UserRegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: StrongPassword123
+        name:
+          type: string
+          example: Иван Иванов
+        birthdate:
+          type: string
+          format: date
+          example: "1995-06-15"
+
+    UserLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+        token:
+          type: string
+          example: jwt_token_here
+
+    # --- CONTENT ---
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: SQL
+        description:
+          type: string
+          example: Вопросы по базам данных
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: Backend Junior Interview
+        description:
+          type: string
+        level:
+          type: string
+          enum:
+            - junior
+            - middle
+            - senior
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Question:
+      type: object
+      properties:
+        question_id:
+          type: integer
+          example: 1
+        text:
+          type: string
+          example: Что делает LEFT JOIN?
+        question_type:
+          type: string
+          enum:
+            - objective
+            - subjective
+        complexity:
+          type: integer
+          example: 2
+
+    CourseDetail:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/Question'
+
+    # --- ATTEMPTS & ANSWERS ---
+    AttemptSummary:
+      type: object
+      properties:
+        attempt_id:
+          type: integer
+          example: 501
+        course_id:
+          type: integer
+          example: 101
+        status:
+          type: string
+          enum:
+            - in_progress
+            - finished
+            - abandoned
+        timestamp_start:
+          type: string
+          format: date-time
+        timestamp_end:
+          type: string
+          format: date-time
+        overall_score:
+          type: integer
+          example: 78
+        overall_feedback:
+          type: string
+
+    AttemptStartResponse:
+      type: object
+      properties:
+        attempt_id:
+          type: integer
+        course_id:
+          type: integer
+        status:
+          type: string
+          example: in_progress
+        timestamp_start:
+          type: string
+          format: date-time
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+
+    AttemptDetail:
+      allOf:
+        - $ref: '#/components/schemas/AttemptSummary'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserQuestionResult'
+
+    UserAnswerRequest:
+      type: object
+      required:
+        - user_answer
+        - audio_duration
+      properties:
+        user_answer:
+          type: string
+          example: Ответ пользователя...
+        audio_duration:
+          type: integer
+          example: 115
+
+    UserAnswerResponse:
+      type: object
+      properties:
+        question_id:
+          type: integer
+        attempt_id:
+          type: integer
+        score:
+          type: integer
+          example: 8
+        feedback:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        audio_duration:
+          type: integer
+
+    UserQuestionResult:
+      type: object
+      properties:
+        question_id:
+          type: integer
+        user_answer:
+          type: string
+        score:
+          type: integer
+        feedback:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # --- COMMON ---
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Сообщение об ошибке
