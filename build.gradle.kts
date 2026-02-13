@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.0.2"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.openapi.generator") version "7.19.0"
 }
 
 group = "com.github.scripting.programming.language"
@@ -60,4 +61,23 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+openApiGenerate {
+	generatorName.set("spring")
+	inputSpec.set("$projectDir/src/main/resources/static/openapi/front-api.yaml")
+	outputDir.set("$projectDir/build/generated/openapi")
+	apiPackage.set("com.github.scripting.programming.language.model.controller")
+	modelPackage.set("com.github.scripting.programming.language.model")
+	configOptions = mapOf(
+		"skipDefaultInterface" to "true",
+		"interfaceOnly" to "true",
+		"serializableModel" to "true",
+		"hideGenerationTimestamp" to "True",
+		"useTags" to "True",
+		"useBeanValidation" to "True",
+		"generateSupportingFiles" to "True",
+		"library" to "spring-boot",
+		"openApiNullable" to "false"
+	)
 }

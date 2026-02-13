@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-base-database
+      author: v.a.yanchenko
+      changes:
+        - sqlFile:
+            path: enum/create_attempt_status_enum.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: enum/create_course_level_enum.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_user_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_category_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_course_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_course_category_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_question_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_course_question_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_attempt_tab.sql
+            relativeToChangeLogFile: true
+        - sqlFile:
+            path: table/create_user_question_tab.sql
+            relativeToChangeLogFile: true
