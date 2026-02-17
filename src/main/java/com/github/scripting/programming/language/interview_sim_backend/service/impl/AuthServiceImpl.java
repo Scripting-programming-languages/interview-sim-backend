@@ -6,6 +6,7 @@ import com.github.scripting.programming.language.interview_sim_backend.exception
 import com.github.scripting.programming.language.interview_sim_backend.mapper.UserMapper;
 import com.github.scripting.programming.language.interview_sim_backend.repository.UserRepository;
 import com.github.scripting.programming.language.interview_sim_backend.service.AuthService;
+import com.github.scripting.programming.language.interview_sim_backend.service.JwtService;
 import com.github.scripting.programming.language.model.AuthResponse;
 import com.github.scripting.programming.language.model.UserLoginRequest;
 import com.github.scripting.programming.language.model.UserRegisterRequest;
@@ -20,6 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     @Override
     public AuthResponse login(UserLoginRequest userLoginRequest) {
@@ -28,12 +30,11 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(userLoginRequest.getPassword(), user.getPasswordHash())) {
             throw new UnauthorizedExcpetion();
         }
-        String token = "1"; // TODO: add jwt service
+        String token = jwtService.generateAccessToken(user);
         return userMapper.toAuthResponse(user, token);
     }
 
     @Override
-
     public AuthResponse register(UserRegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BaseApiException(HttpStatus.BAD_REQUEST, "Email уже существует");
@@ -46,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         var savedUser = userRepository.save(user);
-        String token = "1"; // TODO: add jwt service
+        String token = jwtService.generateAccessToken(user);
         return userMapper.toAuthResponse(savedUser, token);
     }
 }

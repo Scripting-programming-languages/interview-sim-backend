@@ -1,3 +1,13 @@
+logging:
+  level:
+    root: DEBUG
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY:nv+AyffVko53We9P8LPdOQT5d6UXvpNPWkec+0sZjb0=}
+    access-token-expiration: ${ACCESS_TOKEN_EXPIRATION:1800000} # 30 minutes
+    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION:86400000} # 1 day
+
 spring:
   application:
     name: interview-sim-backend
