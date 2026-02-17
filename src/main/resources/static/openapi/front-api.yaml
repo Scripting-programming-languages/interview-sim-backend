@@ -261,19 +261,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/BaseError'
     Unauthorized:
       description: Неавторизованный доступ
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/BaseError'
     BadRequest:
       description: Некорректный запрос
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/BaseError'
 
   schemas:
     # --- AUTH & USER ---
@@ -316,18 +316,8 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 123
-        email:
-          type: string
-          format: email
-        name:
-          type: string
-        birthdate:
-          type: string
-          format: date
-        created_at:
-          type: string
-          format: date-time
         token:
           type: string
           example: jwt_token_here
@@ -499,7 +489,7 @@ components:
           format: date-time
 
     # --- COMMON ---
-    Error:
+    BaseError:
       type: object
       properties:
         error:

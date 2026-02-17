@@ -1,15 +1,13 @@
 spring:
-  profiles:
-    active: ${SPRING_PROFILE_NAME:dev}
   application:
     name: interview-sim-backend
   liquibase:
     enabled: true
     change-log: classpath:migrations/changelog.yml
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mydatabase}
+    username: ${DB_USERNAME:myuser}
+    password: ${DB_PASSWORD:secret}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: HikariPool-InterviewSim
@@ -24,7 +22,7 @@ spring:
       register-mbeans: false
     jpa:
       open-in-view: false
-      show-sql: false
+      show-sql: true
       hibernate:
         ddl-auto: validate
       properties:
