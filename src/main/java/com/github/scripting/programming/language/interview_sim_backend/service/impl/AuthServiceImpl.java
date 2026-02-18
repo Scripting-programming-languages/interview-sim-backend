@@ -70,6 +70,9 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new BaseApiException(UNAUTHORIZED, "Refresh token не валиден"));
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseApiException(UNAUTHORIZED, "Пользователя не существует"));
+        if (!jwtService.isValid(refreshToken, user)) {
+            throw new BaseApiException(UNAUTHORIZED, "Refresh token не валиден");
+        }
         var token = tokenRepository.findByUserIdAndRefreshToken(userId, refreshToken)
                 .filter(t -> !t.isRevoked())
                 .filter(t -> t.getExpiryDate().isAfter(ZonedDateTime.now()))

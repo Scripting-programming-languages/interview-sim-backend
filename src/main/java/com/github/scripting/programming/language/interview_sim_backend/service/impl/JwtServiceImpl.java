@@ -39,12 +39,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isValidRefresh(String token, UserDetails user) {
-        // TODO: add refresh
-        return false;
-    }
-
-    @Override
     public String generateAccessToken(User user) {
         return generateToken(user, jwtProperties.accessTokenExpiration());
     }

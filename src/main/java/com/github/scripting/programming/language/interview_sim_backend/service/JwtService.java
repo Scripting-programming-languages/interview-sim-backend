@@ -8,8 +8,6 @@ import java.util.Optional;
 public interface JwtService {
     boolean isValid(String token, UserDetails userDetails);
 
-    boolean isValidRefresh(String token, UserDetails user);
-
     String generateAccessToken(User user);
 
     String generateRefreshToken(User user);
