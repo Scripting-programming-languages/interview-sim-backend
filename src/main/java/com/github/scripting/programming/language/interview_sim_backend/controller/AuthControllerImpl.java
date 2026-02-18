@@ -20,6 +20,12 @@ public class AuthControllerImpl implements AuthApi {
     }
 
     @Override
+    public ResponseEntity<AuthResponse> authRefreshTokenPost(String authorizationToken) {
+        String refreshToken = authorizationToken.substring(7);
+        return ResponseEntity.ok(authService.refreshToken(refreshToken));
+    }
+
+    @Override
     public ResponseEntity<AuthResponse> authRegisterPost(UserRegisterRequest userRegisterRequest) {
         return ResponseEntity.ok(authService.register(userRegisterRequest));
     }

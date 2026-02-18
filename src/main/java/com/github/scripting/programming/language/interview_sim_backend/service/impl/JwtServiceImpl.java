@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -21,6 +22,8 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
     private final JwtProperties jwtProperties;
     private final SecretKey secretKey;
+
+    public static final String USER_ID_PROPERTY_NAME = "user_id";
 
     public JwtServiceImpl(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
@@ -50,6 +53,7 @@ public class JwtServiceImpl implements JwtService {
         long currentTimeMillis = System.currentTimeMillis();
         JwtBuilder builder = Jwts.builder()
                 .subject(user.getUsername())
+                .claim(USER_ID_PROPERTY_NAME, user.getId())
                 .issuedAt(new Date(currentTimeMillis))
                 .expiration(new Date(currentTimeMillis + tokenExpiration))
                 .signWith(secretKey);
@@ -65,6 +69,23 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    @Override
+    public Optional<Long> extractUserId(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Object userId = claims.get(USER_ID_PROPERTY_NAME);
+
+            if (userId == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(((Number) userId).longValue());
+
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public boolean isAccessTokenExpired(String token) {

@@ -11,7 +11,7 @@ public interface AuthService {
      * Выполняет вход пользователя в систему. Проверяет существование пользователя и валидность пароля
      *
      * @param userLoginRequest -- входные параметры для идентификации пользователя
-     * @return {@link AuthResponse} с id пользователя
+     * @return {@link AuthResponse}
      * @throws UnauthorizedExcpetion, если пользователя нет или пароль не валиден
      */
     AuthResponse login(UserLoginRequest userLoginRequest);
@@ -21,8 +21,17 @@ public interface AuthService {
      * Перед сохранением хеширует пароль и проверяет email на уникальность.
      *
      * @param userRegisterRequest DTO с данными нового пользователя.
-     * @return {@link AuthResponse} с данными созданного пользователя и токеном.
+     * @return {@link AuthResponse} с токенами.
      * @throws BaseApiException, если email уже имеется
      */
     AuthResponse register(UserRegisterRequest userRegisterRequest);
+
+    /**
+     * Обновляет access и refresh jwt токены
+     *
+     * @param refreshToken refresh jwt токен
+     * @return {@link AuthResponse}
+     * @throws UnauthorizedExcpetion, если пользователя токен не валиден
+     */
+    AuthResponse refreshToken(String refreshToken);
 }
