@@ -1,21 +1,23 @@
+logging:
+  level:
+    root: DEBUG
+
 security:
   jwt:
-    secret-key: ${JWT_SECRET_KEY}
-    access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
-    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
+    secret-key: ${JWT_SECRET_KEY:nv+AyffVko53We9P8LPdOQT5d6UXvpNPWkec+0sZjb0=}
+    access-token-expiration: ${ACCESS_TOKEN_EXPIRATION:1800000} # 30 minutes
+    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION:86400000} # 1 day
 
 spring:
-  profiles:
-    active: ${SPRING_PROFILE_NAME:dev}
   application:
     name: interview-sim-backend
   liquibase:
     enabled: true
     change-log: classpath:migrations/changelog.yml
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mydatabase}
+    username: ${DB_USERNAME:myuser}
+    password: ${DB_PASSWORD:secret}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: HikariPool-InterviewSim
@@ -30,7 +32,7 @@ spring:
       register-mbeans: false
     jpa:
       open-in-view: false
-      show-sql: false
+      show-sql: true
       hibernate:
         ddl-auto: validate
       properties:

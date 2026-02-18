@@ -9,6 +9,8 @@ group = "com.github.scripting.programming.language"
 version = "0.0.1-SNAPSHOT"
 description = "Backend for interview simulator project"
 
+val mapstructVersion = "1.6.3"
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(25)
@@ -35,7 +37,18 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-liquibase")
 	implementation("org.springframework.boot:spring-boot-starter-quartz")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("io.jsonwebtoken:jjwt-api:0.13.0")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
+	implementation("jakarta.validation:jakarta.validation-api")
+	implementation("io.swagger.core.v3:swagger-annotations-jakarta:2.2.28")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+
+	implementation("org.mapstruct:mapstruct:$mapstructVersion")
+	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
+	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -63,21 +76,31 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+tasks.compileJava {
+	dependsOn(tasks.openApiGenerate)
+}
+
+sourceSets.main {
+	java.srcDirs("src/main/java", "$projectDir/build/generated/openapi/src/main/java")
+}
+
 openApiGenerate {
-	generatorName.set("spring")
+	generatorName = "spring"
 	inputSpec.set("$projectDir/src/main/resources/static/openapi/front-api.yaml")
 	outputDir.set("$projectDir/build/generated/openapi")
-	apiPackage.set("com.github.scripting.programming.language.model.controller")
+	apiPackage.set("com.github.scripting.programming.language.controller")
 	modelPackage.set("com.github.scripting.programming.language.model")
+	globalProperties = mapOf("apis" to "", "models" to "")
 	configOptions = mapOf(
 		"skipDefaultInterface" to "true",
 		"interfaceOnly" to "true",
 		"serializableModel" to "true",
-		"hideGenerationTimestamp" to "True",
-		"useTags" to "True",
-		"useBeanValidation" to "True",
-		"generateSupportingFiles" to "True",
+		"hideGenerationTimestamp" to "true",
+		"useTags" to "true",
+		"useBeanValidation" to "true",
+		"generateSupportingFiles" to "false",
 		"library" to "spring-boot",
-		"openApiNullable" to "false"
+		"openApiNullable" to "false",
+		"useJakartaEe" to "true"
 	)
 }

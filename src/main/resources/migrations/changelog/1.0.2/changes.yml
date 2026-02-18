@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-refresh-token-table
+      author: v.a.yanchenko
+      changes:
+        - sqlFile:
+            path: table/create_token_table.sql
+            relativeToChangeLogFile: true
