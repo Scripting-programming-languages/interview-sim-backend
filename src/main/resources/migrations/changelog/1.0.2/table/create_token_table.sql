@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS user_data.token_tab(
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES user_data.user_tab(id),
-    refresh_token TEXT,
+    refresh_token VARCHAR(1000) NOT NULL,
     expiry_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     revoked BOOLEAN DEFAULT FALSE
 );

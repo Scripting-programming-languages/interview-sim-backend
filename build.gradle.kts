@@ -45,7 +45,7 @@ dependencies {
 	implementation("jakarta.validation:jakarta.validation-api")
 	implementation("io.swagger.core.v3:swagger-annotations-jakarta:2.2.28")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-
+	implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.15.2")
 	implementation("org.mapstruct:mapstruct:$mapstructVersion")
 	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")

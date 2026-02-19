@@ -86,7 +86,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
+                  $ref: '#/components/schemas/CategoryDto'
 
   /courses:
     get:
@@ -104,7 +104,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Course'
+                  $ref: '#/components/schemas/CourseDto'
 
   /courses/{course_id}:
     get:
@@ -253,24 +253,28 @@ components:
       required: true
       schema:
         type: integer
+        format: int64
     AttemptIdPath:
       name: attempt_id
       in: path
       required: true
       schema:
         type: integer
+        format: int64
     QuestionIdPath:
       name: question_id
       in: path
       required: true
       schema:
         type: integer
+        format: int64
     CategoryIdQuery:
       name: category_id
       in: query
       required: false
       schema:
         type: integer
+        format: int64
     LevelQuery:
       name: level
       in: query
@@ -352,11 +356,12 @@ components:
           example: jwt_token_here
 
     # --- CONTENT ---
-    Category:
+    CategoryDto:
       type: object
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -365,11 +370,12 @@ components:
           type: string
           example: Вопросы по базам данных
 
-    Course:
+    CourseDto:
       type: object
       properties:
         id:
           type: integer
+          format: int64
           example: 101
         name:
           type: string
@@ -385,13 +391,14 @@ components:
         categories:
           type: array
           items:
-            $ref: '#/components/schemas/Category'
+            $ref: '#/components/schemas/CategoryDto'
 
-    Question:
+    QuestionDto:
       type: object
       properties:
         question_id:
           type: integer
+          format: int64
           example: 1
         text:
           type: string
@@ -407,13 +414,13 @@ components:
 
     CourseDetail:
       allOf:
-        - $ref: '#/components/schemas/Course'
+        - $ref: '#/components/schemas/CourseDto'
         - type: object
           properties:
             questions:
               type: array
               items:
-                $ref: '#/components/schemas/Question'
+                $ref: '#/components/schemas/QuestionDto'
 
     # --- ATTEMPTS & ANSWERS ---
     AttemptSummary:
@@ -421,9 +428,11 @@ components:
       properties:
         attempt_id:
           type: integer
+          format: int64
           example: 501
         course_id:
           type: integer
+          format: int64
           example: 101
         status:
           type: string
@@ -448,8 +457,10 @@ components:
       properties:
         attempt_id:
           type: integer
+          format: int64
         course_id:
           type: integer
+          format: int64
         status:
           type: string
           example: in_progress
@@ -459,7 +470,7 @@ components:
         questions:
           type: array
           items:
-            $ref: '#/components/schemas/Question'
+            $ref: '#/components/schemas/QuestionDto'
 
     AttemptDetail:
       allOf:
@@ -489,8 +500,10 @@ components:
       properties:
         question_id:
           type: integer
+          format: int64
         attempt_id:
           type: integer
+          format: int64
         score:
           type: integer
           example: 8
@@ -507,6 +520,7 @@ components:
       properties:
         question_id:
           type: integer
+          format: int64
         user_answer:
           type: string
         score:
