@@ -3,7 +3,6 @@ package com.github.scripting.programming.language.interview_sim_backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.Id;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -37,6 +36,7 @@ public class Attempt {
     private AttemptStatus status = AttemptStatus.IN_PROGRESS;
 
     @Column(name = "overall_score")
+    @Builder.Default
     private Integer overallScore = null;
 
     @Column(name = "overall_feedback", columnDefinition = "TEXT")
@@ -47,6 +47,7 @@ public class Attempt {
     private ZonedDateTime timestampStart;
 
     @Column(name = "timestamp_end")
+    @Builder.Default
     private ZonedDateTime timestampEnd = null;
 
     @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL, orphanRemoval = true)

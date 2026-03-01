@@ -10,11 +10,10 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = {CategoryMapper.class, QuestionMapper.class} // to map Category to CategoryDto and Question to QuestionDto
+        uses = {CategoryMapper.class, QuestionMapper.class, DateMapper.class} // to map Category to CategoryDto and Question to QuestionDto
 )
 public interface CourseMapper {
     @Mapping(source = "level", target = "level") // use method map below
-    @Mapping(target = "questions", ignore = true)
     CourseDto toCourseDto(Course course);
 
     CourseDto.LevelEnum mapToCourseDtoLevelEnum(CourseLevel value);

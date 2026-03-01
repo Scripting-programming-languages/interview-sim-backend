@@ -3,7 +3,6 @@ package com.github.scripting.programming.language.interview_sim_backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.Id;
 
 import java.time.ZonedDateTime;
 

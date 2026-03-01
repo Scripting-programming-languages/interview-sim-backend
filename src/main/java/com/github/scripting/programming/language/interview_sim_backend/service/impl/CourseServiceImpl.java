@@ -23,8 +23,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDto> getCourses(@Nullable Long categoryId, @Nullable String level) {
-        var levelEnum = CourseLevel.findByName(level)
-                .orElseThrow(() -> new BaseApiException(HttpStatus.BAD_REQUEST, "Такого уровня курса не существует"));
+        CourseLevel levelEnum = null;
+        if (level != null) {
+            levelEnum = CourseLevel.findByName(level)
+                    .orElseThrow(() -> new BaseApiException(HttpStatus.BAD_REQUEST, "Такого уровня курса не существует"));
+        }
 
         var rawCourses = courseRepository.findAllWithCategoryByCategoryIdAndCourseLevel(categoryId, levelEnum);
         return rawCourses.stream()

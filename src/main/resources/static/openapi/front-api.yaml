@@ -123,7 +123,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /courses/{course_id}/attempts:
+  /courses/{course_id}/attempt:
     post:
       summary: Начать новую попытку прохождения курса
       tags:
@@ -139,8 +139,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AttemptStartResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -157,20 +157,16 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/UserAnswerRequest'
       responses:
-        '200':
+        '202':
           description: Ответ успешно сохранен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserAnswerResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -227,6 +223,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
       responses:
         '200':
           description: Список всех попыток пользователя
@@ -236,6 +233,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AttemptSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -295,6 +294,12 @@ components:
             $ref: '#/components/schemas/BaseError'
     Unauthorized:
       description: Неавторизованный доступ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseError'
+    Forbidden:
+      description: Недостаточно прав
       content:
         application/json:
           schema:
@@ -477,10 +482,10 @@ components:
         - $ref: '#/components/schemas/AttemptSummary'
         - type: object
           properties:
-            questions:
+            answers:
               type: array
               items:
-                $ref: '#/components/schemas/UserQuestionResult'
+                $ref: '#/components/schemas/UserAnswerResult'
 
     UserAnswerRequest:
       type: object
@@ -490,7 +495,8 @@ components:
       properties:
         user_answer:
           type: string
-          example: Ответ пользователя...
+          format: binary
+          description: Запись голоса (mp3)
         audio_duration:
           type: integer
           example: 115
@@ -512,10 +518,8 @@ components:
         created_at:
           type: string
           format: date-time
-        audio_duration:
-          type: integer
 
-    UserQuestionResult:
+    UserAnswerResult:
       type: object
       properties:
         question_id:

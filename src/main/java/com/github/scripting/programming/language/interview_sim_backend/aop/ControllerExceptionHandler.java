@@ -3,6 +3,7 @@ package com.github.scripting.programming.language.interview_sim_backend.aop;
 import com.github.scripting.programming.language.interview_sim_backend.exception.BaseApiException;
 import com.github.scripting.programming.language.model.BaseError;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,6 +49,18 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Void> handleConstraintViolationException(ConstraintViolationException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .build();
+    }
+
+    /**
+     * Перехватывает {@link DataIntegrityViolationException}
+     *
+     * @param exception
+     * @return
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Void> handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
         return ResponseEntity.status(BAD_REQUEST)
                 .build();
     }
