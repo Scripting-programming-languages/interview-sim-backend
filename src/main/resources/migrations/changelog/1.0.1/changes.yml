@@ -4,12 +4,6 @@ databaseChangeLog:
       author: v.a.yanchenko
       changes:
         - sqlFile:
-            path: enum/create_attempt_status_enum.sql
-            relativeToChangeLogFile: true
-        - sqlFile:
-            path: enum/create_course_level_enum.sql
-            relativeToChangeLogFile: true
-        - sqlFile:
             path: table/create_user_tab.sql
             relativeToChangeLogFile: true
         - sqlFile:
@@ -31,5 +25,5 @@ databaseChangeLog:
             path: table/create_attempt_tab.sql
             relativeToChangeLogFile: true
         - sqlFile:
-            path: table/create_user_question_tab.sql
+            path: table/create_answer_tab.sql
             relativeToChangeLogFile: true

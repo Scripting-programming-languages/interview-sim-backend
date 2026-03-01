@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: answer_tab_add_unique_constraint_question_id_attempt_id
+      author: v.a.yanchenko
+      changes:
+        - sqlFile:
+            path: constraint/answer_tab_add_unique_constraint.sql
+            relativeToChangeLogFile: true

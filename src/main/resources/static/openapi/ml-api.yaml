@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: Backend and ML API
+  version: 1.0.0
+
+paths:
+  # Ручка для оценки одного конкретного ответа
+  /estimate-answer:
+    post:
+      summary: Оценить голосовой ответ (ML оценка + сравнение с эталоном)
+      tags:
+        - Estimate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                reference_text:
+                  type: string
+                  description: Эталонный ответ из базы данных для сравнения
+              required:
+                - audio
+                - reference_text
+      responses:
+        '200':
+          description: Результат анализа ответа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleAnswerEstimation'
+
+  # Ручка для получения финального суммаризированного фидбека
+  /finalize-feedback:
+    post:
+      summary: Получить сжатый фидбек от LLM
+      tags:
+        - Summary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummaryRequest'
+      responses:
+        '200':
+          description: Финальный отчет по всему интервью
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalInterviewReport'
+
+components:
+  schemas:
+    SingleAnswerEstimation:
+      type: object
+      properties:
+        score:
+          type: integer
+          example: 3
+          description: Оценка за смысл (насколько близок к эталону)
+        speech_score:
+          type: integer
+          example: 4
+          description: Оценка за качество речи
+        text_feedback:
+          type: string
+          example: "Вы хорошо раскрыли тему, но не упомянули про полиморфизм."
+        speech_feedback:
+          type: string
+          example: "Слишком много слов-паразитов и длинные паузы."
+        transcribed_text:
+          type: string
+          example: "Ну, Java это типа объектный язык..."
+          description: Что на самом деле сказал пользователь
+
+    FinalInterviewReport:
+      type: object
+      properties:
+        summary_feedback:
+          type: string
+          example: "В целом кандидат силен в Core Java, но плавает в многопоточности."
+          description: Результат работы LLM, которая сжала все text_feedback
+    SummaryRequest:
+      type: object
+      required:
+        - feedbacks
+      properties:
+        feedbacks:
+          type: array
+          description: Список всех текстовых фидбеков по каждому вопросу
+          items:
+            type: string
+          example:
+            - "Ответ по Java Core хороший, но не хватило деталей про JVM."
+            - "Про SQL ответил отлично, знание индексов на высоте."
+            - "Тему Spring Security стоит подтянуть, путаница в фильтрах."

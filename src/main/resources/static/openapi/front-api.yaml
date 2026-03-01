@@ -86,7 +86,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
+                  $ref: '#/components/schemas/CategoryDto'
 
   /courses:
     get:
@@ -104,7 +104,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Course'
+                  $ref: '#/components/schemas/CourseDto'
 
   /courses/{course_id}:
     get:
@@ -123,7 +123,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /courses/{course_id}/attempts:
+  /courses/{course_id}/attempt:
     post:
       summary: Начать новую попытку прохождения курса
       tags:
@@ -139,8 +139,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AttemptStartResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -157,20 +157,16 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/UserAnswerRequest'
       responses:
-        '200':
+        '202':
           description: Ответ успешно сохранен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserAnswerResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -227,6 +223,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
       responses:
         '200':
           description: Список всех попыток пользователя
@@ -236,6 +233,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AttemptSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -253,24 +252,28 @@ components:
       required: true
       schema:
         type: integer
+        format: int64
     AttemptIdPath:
       name: attempt_id
       in: path
       required: true
       schema:
         type: integer
+        format: int64
     QuestionIdPath:
       name: question_id
       in: path
       required: true
       schema:
         type: integer
+        format: int64
     CategoryIdQuery:
       name: category_id
       in: query
       required: false
       schema:
         type: integer
+        format: int64
     LevelQuery:
       name: level
       in: query
@@ -291,6 +294,12 @@ components:
             $ref: '#/components/schemas/BaseError'
     Unauthorized:
       description: Неавторизованный доступ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseError'
+    Forbidden:
+      description: Недостаточно прав
       content:
         application/json:
           schema:
@@ -352,11 +361,12 @@ components:
           example: jwt_token_here
 
     # --- CONTENT ---
-    Category:
+    CategoryDto:
       type: object
       properties:
         id:
           type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -365,11 +375,12 @@ components:
           type: string
           example: Вопросы по базам данных
 
-    Course:
+    CourseDto:
       type: object
       properties:
         id:
           type: integer
+          format: int64
           example: 101
         name:
           type: string
@@ -385,13 +396,14 @@ components:
         categories:
           type: array
           items:
-            $ref: '#/components/schemas/Category'
+            $ref: '#/components/schemas/CategoryDto'
 
-    Question:
+    QuestionDto:
       type: object
       properties:
         question_id:
           type: integer
+          format: int64
           example: 1
         text:
           type: string
@@ -407,13 +419,13 @@ components:
 
     CourseDetail:
       allOf:
-        - $ref: '#/components/schemas/Course'
+        - $ref: '#/components/schemas/CourseDto'
         - type: object
           properties:
             questions:
               type: array
               items:
-                $ref: '#/components/schemas/Question'
+                $ref: '#/components/schemas/QuestionDto'
 
     # --- ATTEMPTS & ANSWERS ---
     AttemptSummary:
@@ -421,9 +433,11 @@ components:
       properties:
         attempt_id:
           type: integer
+          format: int64
           example: 501
         course_id:
           type: integer
+          format: int64
           example: 101
         status:
           type: string
@@ -448,8 +462,10 @@ components:
       properties:
         attempt_id:
           type: integer
+          format: int64
         course_id:
           type: integer
+          format: int64
         status:
           type: string
           example: in_progress
@@ -459,17 +475,17 @@ components:
         questions:
           type: array
           items:
-            $ref: '#/components/schemas/Question'
+            $ref: '#/components/schemas/QuestionDto'
 
     AttemptDetail:
       allOf:
         - $ref: '#/components/schemas/AttemptSummary'
         - type: object
           properties:
-            questions:
+            answers:
               type: array
               items:
-                $ref: '#/components/schemas/UserQuestionResult'
+                $ref: '#/components/schemas/UserAnswerResult'
 
     UserAnswerRequest:
       type: object
@@ -479,7 +495,8 @@ components:
       properties:
         user_answer:
           type: string
-          example: Ответ пользователя...
+          format: binary
+          description: Запись голоса (mp3)
         audio_duration:
           type: integer
           example: 115
@@ -489,8 +506,10 @@ components:
       properties:
         question_id:
           type: integer
+          format: int64
         attempt_id:
           type: integer
+          format: int64
         score:
           type: integer
           example: 8
@@ -499,14 +518,13 @@ components:
         created_at:
           type: string
           format: date-time
-        audio_duration:
-          type: integer
 
-    UserQuestionResult:
+    UserAnswerResult:
       type: object
       properties:
         question_id:
           type: integer
+          format: int64
         user_answer:
           type: string
         score:
