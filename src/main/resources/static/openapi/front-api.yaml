@@ -439,10 +439,8 @@ components:
           type: integer
           format: int64
           example: 501
-        course_id:
-          type: integer
-          format: int64
-          example: 101
+        course:
+          $ref: '#/components/schemas/CourseDto'
         status:
           type: string
           enum:
