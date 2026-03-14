@@ -10,7 +10,7 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = {QuestionMapper.class, AnswerMapper.class, DateMapper.class}
+        uses = {QuestionMapper.class, AnswerMapper.class, DateMapper.class, CourseMapper.class}
 )
 public interface AttemptMapper {
     @Mapping(target = "attemptId", source = "id")
@@ -19,10 +19,8 @@ public interface AttemptMapper {
     AttemptStartResponse toAttemptStartResponse(Attempt attempt);
 
     @Mapping(target = "attemptId", source = "id")
-    @Mapping(target = "courseId", source = "course.id")
     AttemptDetail toAttemptDetail(Attempt attempt);
 
     @Mapping(target = "attemptId", source = "id")
-    @Mapping(target = "courseId", source = "course.id")
     AttemptSummary toAttemptSummary(Attempt attempt);
 }

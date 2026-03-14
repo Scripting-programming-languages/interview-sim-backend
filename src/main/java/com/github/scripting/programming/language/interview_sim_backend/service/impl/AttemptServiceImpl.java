@@ -18,10 +18,10 @@ import com.github.scripting.programming.language.model.AttemptDetail;
 import com.github.scripting.programming.language.model.AttemptStartResponse;
 import com.github.scripting.programming.language.model.AttemptSummary;
 import com.github.scripting.programming.language.model.UserAnswerResult;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
@@ -97,14 +97,17 @@ public class AttemptServiceImpl implements AttemptService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AttemptDetail getAttemptDetail(Long attemptId, Long userId) {
         var attemptWithAnswers = attemptRepository.findWithAnswersByIdAndUserId(attemptId, userId)
                 .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Попытки не существует"));
 
+        attemptRepository.findWithCourseByIdAndUserId(attemptId, userId);
         return attemptMapper.toAttemptDetail(attemptWithAnswers);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AttemptSummary> getUserAttemptsSummary(Long userId) {
         var attemptList = attemptRepository.findAllWithCourseByUserId(userId);
         return attemptList.stream()
@@ -125,6 +128,7 @@ public class AttemptServiceImpl implements AttemptService {
         var currentTime = ZonedDateTime.now();
         var attempt = attemptRepository.findWithAnswersByIdAndUserId(attemptId, userId)
                 .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Такой попытки не существует"));
+        attemptRepository.findWithCourseByIdAndUserId(attemptId, userId);
         if (!attempt.getStatus().equals(AttemptStatus.IN_PROGRESS)) {
             throw new BaseApiException(BAD_REQUEST, "Попытка уже завершена");
         }
