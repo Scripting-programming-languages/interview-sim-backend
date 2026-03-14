@@ -26,4 +26,11 @@ public class AnswerServiceImpl implements AnswerService {
                 .build();
         return answerRepository.save(answer);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existAnswer(Attempt attempt, Question question) {
+        return answerRepository.findByAttemptAndQuestion(attempt, question)
+                .isPresent();
+    }
 }

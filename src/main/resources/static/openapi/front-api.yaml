@@ -161,8 +161,12 @@ paths:
             schema:
               $ref: '#/components/schemas/UserAnswerRequest'
       responses:
-        '202':
+        '200':
           description: Ответ успешно сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAnswerResult'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':

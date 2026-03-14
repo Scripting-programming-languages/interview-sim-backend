@@ -1,7 +1,9 @@
 package com.github.scripting.programming.language.interview_sim_backend.service;
 
+import com.github.scripting.programming.language.interview_sim_backend.dto.SummaryResponseDto;
+
 import java.util.List;
 
 public interface FeedbackSummarizer {
-    String summarize(List<String> feedbacks);
+    SummaryResponseDto summarize(List<String> feedbacks);
 }

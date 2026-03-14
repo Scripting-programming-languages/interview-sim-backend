@@ -6,4 +6,6 @@ import com.github.scripting.programming.language.interview_sim_backend.entity.Qu
 
 public interface AnswerService {
     Answer save(Attempt attempt, Question question, String userAnswer, Integer score, String feedback);
+
+    boolean existAnswer(Attempt attempt, Question question);
 }

@@ -4,6 +4,15 @@ security:
     access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
     refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
 
+http:
+  common:
+    maxConnectionTotal: 100
+    maxConnectionPerRoute: 30
+  ml:
+    baseUrl: ${ML_URL}
+    connectTimeout: 5000 # 5 sec
+    readTimeout: 120000 # 2 min
+
 spring:
   profiles:
     active: ${SPRING_PROFILE_NAME:dev}

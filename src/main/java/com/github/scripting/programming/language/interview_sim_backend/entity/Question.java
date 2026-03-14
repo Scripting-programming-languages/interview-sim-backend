@@ -1,9 +1,7 @@
 package com.github.scripting.programming.language.interview_sim_backend.entity;
 
-import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
 
 import java.util.List;
 import java.util.Set;
