@@ -1,8 +1,8 @@
 package com.github.scripting.programming.language.interview_sim_backend.service;
 
 import com.github.scripting.programming.language.interview_sim_backend.dto.AnswerEvaluation;
-import org.springframework.web.multipart.MultipartFile;
+import com.github.scripting.programming.language.interview_sim_backend.dto.EstimateAnswerRequestDto;
 
 public interface AnswerEstimatorService {
-    AnswerEvaluation estimateAnswer(MultipartFile audioFile);
+    AnswerEvaluation estimateAnswer(EstimateAnswerRequestDto estimateAnswerRequestDto);
 }

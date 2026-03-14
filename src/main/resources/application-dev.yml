@@ -1,12 +1,22 @@
 logging:
   level:
     root: DEBUG
+    org.apache.hc.client5.http: DEBUG
 
 security:
   jwt:
     secret-key: ${JWT_SECRET_KEY:nv+AyffVko53We9P8LPdOQT5d6UXvpNPWkec+0sZjb0=}
     access-token-expiration: ${ACCESS_TOKEN_EXPIRATION:1800000} # 30 minutes
     refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION:86400000} # 1 day
+
+http:
+  common:
+    maxConnectionTotal: 100
+    maxConnectionPerRoute: 30
+  ml:
+    baseUrl: ${ML_URL:http://localhost:8000}
+    connectTimeout: 5000 # 5 sec
+    readTimeout: 240000 # 4 min
 
 spring:
   application:

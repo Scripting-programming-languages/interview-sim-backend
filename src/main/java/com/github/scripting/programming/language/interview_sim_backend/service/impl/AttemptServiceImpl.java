@@ -1,5 +1,6 @@
 package com.github.scripting.programming.language.interview_sim_backend.service.impl;
 
+import com.github.scripting.programming.language.interview_sim_backend.dto.EstimateAnswerRequestDto;
 import com.github.scripting.programming.language.interview_sim_backend.dto.FeedbackScore;
 import com.github.scripting.programming.language.interview_sim_backend.entity.Attempt;
 import com.github.scripting.programming.language.interview_sim_backend.entity.AttemptStatus;
@@ -16,6 +17,7 @@ import com.github.scripting.programming.language.interview_sim_backend.service.F
 import com.github.scripting.programming.language.model.AttemptDetail;
 import com.github.scripting.programming.language.model.AttemptStartResponse;
 import com.github.scripting.programming.language.model.AttemptSummary;
+import com.github.scripting.programming.language.model.UserAnswerResult;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +67,7 @@ public class AttemptServiceImpl implements AttemptService {
     }
 
     @Override
-    public void answerQuestion(Long attemptId, Long questionId, Long userId, Integer audioDuration, MultipartFile file) {
+    public UserAnswerResult answerQuestion(Long attemptId, Long questionId, Long userId, Integer audioDuration, MultipartFile file) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Такого пользователя не существует"));
         var attempt = attemptRepository.findWithCourseByIdAndUserId(attemptId, userId)
@@ -75,11 +77,23 @@ public class AttemptServiceImpl implements AttemptService {
         }
         var question = questionRepository.findQuestionByCourseIdAndQuestionId(questionId, attempt.getCourse().getId())
                 .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Такой вопроса не существует"));
+        if (answerService.existAnswer(attempt, question)) {
+            throw new BaseApiException(BAD_REQUEST, "Ответ уже записан");
+        }
 
-        // mock request to LLM
-        var evaluation = answerEstimatorService.estimateAnswer(file);
+        // request to LLM
+        var request = new EstimateAnswerRequestDto(file.getResource(), question.getCorrectAnswer());
+        var evaluation = answerEstimatorService.estimateAnswer(request);
 
-        answerService.save(attempt, question, evaluation.userAnswer(), evaluation.score(), evaluation.feedback());
+        var answer = answerService.save(attempt, question, evaluation.transcribedText(), evaluation.score(), evaluation.textFeedback());
+
+        var response = new UserAnswerResult();
+        response.setQuestionId(questionId);
+        response.setFeedback(evaluation.textFeedback());
+        response.setCreatedAt(answer.getCreatedAt().toOffsetDateTime());
+        response.setScore(evaluation.score());
+        response.setUserAnswer(evaluation.transcribedText());
+        return response;
     }
 
     @Override
@@ -127,13 +141,13 @@ public class AttemptServiceImpl implements AttemptService {
         }
 
         Integer meanScore = getOverallScore(feedbackScores);
-        String overallFeedback = feedbackSummarizer.summarize(
+        var summarize = feedbackSummarizer.summarize(
                 feedbackScores.stream()
                         .map(FeedbackScore::feedback)
                         .toList()
         );
         attempt.setOverallScore(meanScore);
-        attempt.setOverallFeedback(overallFeedback);
+        attempt.setOverallFeedback(summarize.summaryFeedback());
         attempt.setStatus(AttemptStatus.FINISHED);
         attempt.setTimestampEnd(currentTime);
         attemptRepository.save(attempt);
