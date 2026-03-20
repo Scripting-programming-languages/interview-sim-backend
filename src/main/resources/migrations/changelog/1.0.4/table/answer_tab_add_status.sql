@@ -1,0 +1,2 @@
+ALTER TABLE user_data.answer_tab
+ADD COLUMN IF NOT EXISTS status varchar(255) DEFAULT 'ESTIMATING' NOT NULL;

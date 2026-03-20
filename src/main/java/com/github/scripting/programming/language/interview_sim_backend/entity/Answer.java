@@ -32,6 +32,11 @@ public class Answer {
     @Column(columnDefinition = "TEXT")
     private String userAnswer;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private AnswerStatus status = AnswerStatus.ESTIMATING;
+
     @Column(name = "score")
     private Integer score;
 

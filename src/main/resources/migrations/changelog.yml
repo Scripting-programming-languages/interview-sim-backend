@@ -11,3 +11,6 @@ databaseChangeLog:
   - include:
       file: "changelog/1.0.3/changes.yml"
       relativeToChangeLogFile: true
+  - include:
+      file: "changelog/1.0.4/changes.yml"
+      relativeToChangeLogFile: true
