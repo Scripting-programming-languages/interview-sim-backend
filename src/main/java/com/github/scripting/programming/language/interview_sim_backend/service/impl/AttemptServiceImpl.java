@@ -10,7 +10,7 @@ import com.github.scripting.programming.language.interview_sim_backend.repositor
 import com.github.scripting.programming.language.interview_sim_backend.repository.CourseRepository;
 import com.github.scripting.programming.language.interview_sim_backend.repository.QuestionRepository;
 import com.github.scripting.programming.language.interview_sim_backend.repository.UserRepository;
-import com.github.scripting.programming.language.interview_sim_backend.service.AnswerEstimatorService;
+import com.github.scripting.programming.language.interview_sim_backend.service.AnswerEstimateSender;
 import com.github.scripting.programming.language.interview_sim_backend.service.AnswerService;
 import com.github.scripting.programming.language.interview_sim_backend.service.AttemptService;
 import com.github.scripting.programming.language.interview_sim_backend.service.FeedbackSummarizer;
@@ -39,7 +39,7 @@ public class AttemptServiceImpl implements AttemptService {
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
     private final AttemptMapper attemptMapper;
-    private final AnswerEstimatorService answerEstimatorService;
+    private final AnswerEstimateSender answerEstimatorService;
     private final AnswerService answerService;
     private final FeedbackSummarizer feedbackSummarizer;
 
@@ -67,7 +67,7 @@ public class AttemptServiceImpl implements AttemptService {
     }
 
     @Override
-    public UserAnswerResult answerQuestion(Long attemptId, Long questionId, Long userId, Integer audioDuration, MultipartFile file) {
+    public void answerQuestion(Long attemptId, Long questionId, Long userId, Integer audioDuration, MultipartFile file) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Такого пользователя не существует"));
         var attempt = attemptRepository.findWithCourseByIdAndUserId(attemptId, userId)
@@ -81,19 +81,11 @@ public class AttemptServiceImpl implements AttemptService {
             throw new BaseApiException(BAD_REQUEST, "Ответ уже записан");
         }
 
+        var answer = answerService.save(attempt, question);
+
         // request to LLM
-        var request = new EstimateAnswerRequestDto(file.getResource(), question.getCorrectAnswer());
-        var evaluation = answerEstimatorService.estimateAnswer(request);
-
-        var answer = answerService.save(attempt, question, evaluation.transcribedText(), evaluation.score(), evaluation.textFeedback());
-
-        var response = new UserAnswerResult();
-        response.setQuestionId(questionId);
-        response.setFeedback(evaluation.textFeedback());
-        response.setCreatedAt(answer.getCreatedAt().toOffsetDateTime());
-        response.setScore(evaluation.score());
-        response.setUserAnswer(evaluation.transcribedText());
-        return response;
+        var request = new EstimateAnswerRequestDto(answer.getId(), file.getResource(), question.getCorrectAnswer());
+        answerEstimatorService.sendEstimateAnswer(request);
     }
 
     @Override

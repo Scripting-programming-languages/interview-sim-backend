@@ -36,10 +36,10 @@ public class AttemptControllerImpl implements AttemptsApi {
     }
 
     @Override
-    public ResponseEntity<UserAnswerResult> attemptsAttemptIdQuestionsQuestionIdAnswerPost(Long attemptId, Long questionId, MultipartFile userAudio, Integer audioDuration) {
+    public ResponseEntity<Void> attemptsAttemptIdQuestionsQuestionIdAnswerPost(Long attemptId, Long questionId, MultipartFile userAudio, Integer audioDuration) {
         var userId = authUtil.getCurrentUserId();
-        var UserAnswerResult = attemptService.answerQuestion(attemptId, questionId, userId, audioDuration, userAudio);
-        return ResponseEntity.ok(UserAnswerResult);
+        attemptService.answerQuestion(attemptId, questionId, userId, audioDuration, userAudio);
+        return ResponseEntity.accepted().build();
     }
 
     /**

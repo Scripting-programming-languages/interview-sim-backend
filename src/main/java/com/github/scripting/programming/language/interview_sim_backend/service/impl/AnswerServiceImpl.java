@@ -1,6 +1,7 @@
 package com.github.scripting.programming.language.interview_sim_backend.service.impl;
 
 import com.github.scripting.programming.language.interview_sim_backend.entity.Answer;
+import com.github.scripting.programming.language.interview_sim_backend.entity.AnswerStatus;
 import com.github.scripting.programming.language.interview_sim_backend.entity.Attempt;
 import com.github.scripting.programming.language.interview_sim_backend.entity.Question;
 import com.github.scripting.programming.language.interview_sim_backend.repository.AnswerRepository;
@@ -16,13 +17,11 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     @Transactional
-    public Answer save(Attempt attempt, Question question, String userAnswer, Integer score, String feedback) {
+    public Answer save(Attempt attempt, Question question) {
         var answer = Answer.builder()
                 .attempt(attempt)
                 .question(question)
-                .userAnswer(userAnswer)
-                .feedback(feedback)
-                .score(score)
+                .status(AnswerStatus.ESTIMATING)
                 .build();
         return answerRepository.save(answer);
     }
