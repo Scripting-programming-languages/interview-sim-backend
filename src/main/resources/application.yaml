@@ -13,6 +13,12 @@ http:
     connectTimeout: 5000 # 5 sec
     readTimeout: 120000 # 2 min
 
+kafka:
+  ml:
+    topics: ${ML_KAFKA_TOPIC}
+    groupId: ${ML_KAFKA_GROUP_ID}
+    concurrency: ${ML_KAFKA_CONCURRENCY}
+
 spring:
   profiles:
     active: ${SPRING_PROFILE_NAME:dev}
@@ -21,6 +27,17 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:migrations/changelog.yml
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${ML_KAFKA_GROUP_ID}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.trusted.packages: "com.github.scripting.programming.language.interview_sim_backend.dto"
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
