@@ -37,6 +37,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.value.default.type: "com.github.scripting.programming.language.interview_sim_backend.dto.AnswerEstimationMsg"
         spring.json.trusted.packages: "com.github.scripting.programming.language.interview_sim_backend.dto"
   datasource:
     url: ${DB_URL}

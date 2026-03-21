@@ -1,6 +1,6 @@
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org.apache.hc.client5.http: DEBUG
 
 security:
@@ -22,7 +22,7 @@ kafka:
   ml:
     topics: ${ML_KAFKA_TOPIC:answerEstimation}
     groupId: ${ML_KAFKA_GROUP_ID:answerEstimation.0}
-    concurrency: ${ML_KAFKA_CONCURRENCY:0}
+    concurrency: ${ML_KAFKA_CONCURRENCY:1}
 
 spring:
   application:

@@ -47,7 +47,7 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     private static Supplier<EntityNotExist> entityNotExistSupplier(Long answerId) {
-        return () -> new EntityNotExist("Answer with id  {" + answerId + "} not exist");
+        return () -> new EntityNotExist("Answer with id {" + answerId + "} not exist");
     }
 
 
