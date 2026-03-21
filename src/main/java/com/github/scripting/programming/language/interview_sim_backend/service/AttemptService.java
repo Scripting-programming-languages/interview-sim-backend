@@ -11,7 +11,7 @@ import java.util.List;
 public interface AttemptService {
     AttemptStartResponse startAttempt(Long userId, Long courseId);
 
-    UserAnswerResult answerQuestion(Long attemptId, Long questionId, Long userId, Integer audioDuration, MultipartFile file);
+    void answerQuestion(Long attemptId, Long questionId, Long userId, Integer audioDuration, MultipartFile file);
 
     AttemptDetail getAttemptDetail(Long attemptId, Long userId);
 

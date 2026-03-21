@@ -1,6 +1,6 @@
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org.apache.hc.client5.http: DEBUG
 
 security:
@@ -18,12 +18,29 @@ http:
     connectTimeout: 5000 # 5 sec
     readTimeout: 240000 # 4 min
 
+kafka:
+  ml:
+    topics: ${ML_KAFKA_TOPIC:answerEstimation}
+    groupId: ${ML_KAFKA_GROUP_ID:answerEstimation.0}
+    concurrency: ${ML_KAFKA_CONCURRENCY:1}
+
 spring:
   application:
     name: interview-sim-backend
   liquibase:
     enabled: true
     change-log: classpath:migrations/changelog.yml
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${ML_KAFKA_GROUP_ID:answerEstimation.0}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.trusted.packages: "com.github.scripting.programming.language.interview_sim_backend.dto"
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/mydatabase}
     username: ${DB_USERNAME:myuser}

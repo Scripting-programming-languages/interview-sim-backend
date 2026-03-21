@@ -25,16 +25,16 @@ paths:
                 reference_text:
                   type: string
                   description: Эталонный ответ из базы данных для сравнения
+                answer_id:
+                  type: integer
+                  format: int64
+                  description: Идентификатор ответа в базе данных
               required:
                 - audio
                 - reference_text
       responses:
-        '200':
-          description: Результат анализа ответа
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SingleAnswerEstimation'
+        '202':
+          description: Ответ принят
 
   # Ручка для получения финального суммаризированного фидбека
   /finalize-feedback:
