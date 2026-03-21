@@ -105,6 +105,29 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CourseDto'
+    post:
+      summary: Создать новый курс
+      tags:
+        - Courses (Admin)
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreateRequest'
+      responses:
+        '201':
+          description: Курс успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /courses/{course_id}:
     get:
@@ -120,6 +143,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Обновить существующий курс
+      tags:
+        - Courses (Admin)
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreateRequest'
+      responses:
+        '200':
+          description: Курс успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Удалить курс
+      tags:
+        - Courses (Admin)
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '204':
+          description: Курс успешно удален
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -244,6 +308,10 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+      description: "Используется для административных действий (создание/редактирование контента)"
 
   parameters:
     CourseIdPath:
@@ -346,6 +414,35 @@ components:
           format: email
         password:
           type: string
+    CourseCreateRequest:
+      type: object
+      required:
+        - name
+        - level
+      properties:
+        name:
+          type: string
+          example: "Advanced Java & Spring Boot"
+        description:
+          type: string
+          example: "Курс для подготовки к Senior интервью"
+        level:
+          type: string
+          enum: [ junior, middle, senior ]
+        category_ids:
+          type: array
+          description: "Список ID категорий, к которым относится курс"
+          items:
+            type: integer
+            format: int64
+          example: [ 1, 5 ]
+        question_ids:
+          type: array
+          description: "Список ID вопросов, входящих в курс"
+          items:
+            type: integer
+            format: int64
+          example: [ 101, 102, 105 ]
 
     AuthResponse:
       type: object

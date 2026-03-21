@@ -3,6 +3,9 @@ security:
     secret-key: ${JWT_SECRET_KEY}
     access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
     refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
+  admin:
+    username: ${ADMIN_USERNAME}
+    password: ${ADMIN_PASSWORD}
 
 http:
   common:
@@ -55,6 +58,7 @@ spring:
       validation-timeout: 3000 # Время на проверку того, что соединение живо
       leak-detection-threshold: 5000 # Порог для обнаружения утечки соединения
       register-mbeans: false
+      auto-commit: false
     jpa:
       open-in-view: false
       show-sql: false
