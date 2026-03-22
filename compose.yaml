@@ -57,3 +57,17 @@ services:
       echo 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic answerEstimation --replication-factor 1 --partitions 2
       "
+  backend:
+    build: .
+    container_name: interview-sim-backend
+    working_dir: /app
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SERVER_PORT=8081
