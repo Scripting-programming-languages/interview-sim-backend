@@ -6,6 +6,7 @@ COPY gradlew .
 COPY gradle gradle
 COPY build.gradle.kts settings.gradle.kts /app/
 
+RUN chmod +x gradlew
 RUN ./gradlew build -x test --no-daemon || return 0
 
 COPY src src

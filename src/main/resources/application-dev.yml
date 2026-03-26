@@ -11,6 +11,8 @@ security:
   admin:
     username: ${ADMIN_USERNAME:username}
     password: ${ADMIN_PASSWORD:password}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 http:
   common:
     maxConnectionTotal: 100
