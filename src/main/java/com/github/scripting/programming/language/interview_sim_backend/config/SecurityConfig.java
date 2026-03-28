@@ -41,6 +41,7 @@ public class SecurityConfig {
     @SneakyThrows
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http, UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
         return http
+                .cors(withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories").permitAll()
@@ -60,6 +61,7 @@ public class SecurityConfig {
     @SneakyThrows
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http, InMemoryUserDetailsManager adminManager) {
         return http
+                .cors(withDefaults())
                 .securityMatcher("/courses/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/courses/**").authenticated()

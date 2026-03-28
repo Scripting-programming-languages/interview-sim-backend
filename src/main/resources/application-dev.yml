@@ -3,6 +3,9 @@ logging:
     root: INFO
     org.apache.hc.client5.http: DEBUG
 
+server:
+  port: ${SERVER_PORT:8081}
+
 security:
   jwt:
     secret-key: ${JWT_SECRET_KEY:nv+AyffVko53We9P8LPdOQT5d6UXvpNPWkec+0sZjb0=}
