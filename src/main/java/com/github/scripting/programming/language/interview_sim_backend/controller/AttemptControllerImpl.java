@@ -4,10 +4,11 @@ import com.github.scripting.programming.language.controller.AttemptsApi;
 import com.github.scripting.programming.language.interview_sim_backend.exception.BaseApiException;
 import com.github.scripting.programming.language.interview_sim_backend.service.AttemptService;
 import com.github.scripting.programming.language.interview_sim_backend.service.AuthUtil;
+import com.github.scripting.programming.language.interview_sim_backend.service.impl.StartAttemptDelegator;
 import com.github.scripting.programming.language.model.AttemptDetail;
 import com.github.scripting.programming.language.model.AttemptStartResponse;
+import com.github.scripting.programming.language.model.AttemptStartResponseV2;
 import com.github.scripting.programming.language.model.AttemptSummary;
-import com.github.scripting.programming.language.model.UserAnswerResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RequiredArgsConstructor
 public class AttemptControllerImpl implements AttemptsApi {
     private final AttemptService attemptService;
+    private final StartAttemptDelegator startAttemptDelegator;
     private final AuthUtil authUtil;
 
     @Override
@@ -50,7 +52,7 @@ public class AttemptControllerImpl implements AttemptsApi {
     @Override
     public ResponseEntity<AttemptStartResponse> coursesCourseIdAttemptPost(Long courseId) {
         var userId = authUtil.getCurrentUserId();
-        return ResponseEntity.ok(attemptService.startAttempt(userId, courseId));
+        return ResponseEntity.ok(startAttemptDelegator.startAttempt(userId, courseId));
     }
 
     @Override
@@ -60,5 +62,11 @@ public class AttemptControllerImpl implements AttemptsApi {
             throw new BaseApiException(FORBIDDEN, "Недостаточно прав");
         }
         return ResponseEntity.ok(attemptService.getUserAttemptsSummary(userId));
+    }
+
+    @Override
+    public ResponseEntity<AttemptStartResponseV2> v2CoursesCourseIdAttemptPost(Long courseId) {
+        var userId = authUtil.getCurrentUserId();
+        return ResponseEntity.ok(startAttemptDelegator.startAttemptV2(courseId, userId));
     }
 }
