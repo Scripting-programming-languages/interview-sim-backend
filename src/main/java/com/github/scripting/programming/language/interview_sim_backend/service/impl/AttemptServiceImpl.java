@@ -1,23 +1,21 @@
 package com.github.scripting.programming.language.interview_sim_backend.service.impl;
 
+import com.github.scripting.programming.language.grpc.NextQuestionRequest;
 import com.github.scripting.programming.language.interview_sim_backend.dto.EstimateAnswerRequestDto;
 import com.github.scripting.programming.language.interview_sim_backend.dto.FeedbackScore;
 import com.github.scripting.programming.language.interview_sim_backend.entity.Attempt;
 import com.github.scripting.programming.language.interview_sim_backend.entity.AttemptStatus;
+import com.github.scripting.programming.language.interview_sim_backend.entity.Question;
 import com.github.scripting.programming.language.interview_sim_backend.exception.BaseApiException;
 import com.github.scripting.programming.language.interview_sim_backend.mapper.AttemptMapper;
-import com.github.scripting.programming.language.interview_sim_backend.repository.AttemptRepository;
-import com.github.scripting.programming.language.interview_sim_backend.repository.CourseRepository;
-import com.github.scripting.programming.language.interview_sim_backend.repository.QuestionRepository;
-import com.github.scripting.programming.language.interview_sim_backend.repository.UserRepository;
+import com.github.scripting.programming.language.interview_sim_backend.repository.*;
 import com.github.scripting.programming.language.interview_sim_backend.service.AnswerEstimateSender;
 import com.github.scripting.programming.language.interview_sim_backend.service.AnswerService;
 import com.github.scripting.programming.language.interview_sim_backend.service.AttemptService;
 import com.github.scripting.programming.language.interview_sim_backend.service.FeedbackSummarizer;
 import com.github.scripting.programming.language.model.AttemptDetail;
-import com.github.scripting.programming.language.model.AttemptStartResponse;
 import com.github.scripting.programming.language.model.AttemptSummary;
-import com.github.scripting.programming.language.model.UserAnswerResult;
+import io.grpc.Status;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -42,6 +42,7 @@ public class AttemptServiceImpl implements AttemptService {
     private final AnswerEstimateSender answerEstimatorService;
     private final AnswerService answerService;
     private final FeedbackSummarizer feedbackSummarizer;
+    private final AnswerRepository answerRepository;
 
     private static int getOverallScore(List<FeedbackScore> feedbackScores) {
         return (int) Math.round(
@@ -52,7 +53,7 @@ public class AttemptServiceImpl implements AttemptService {
 
     @Override
     @Transactional
-    public AttemptStartResponse startAttempt(Long userId, Long courseId) {
+    public Attempt startAttempt(Long userId, Long courseId) {
         var course = courseRepository.findWithQuestionsById(courseId)
                 .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Такого курса не существует"));
         var user = userRepository.findById(userId)
@@ -63,7 +64,24 @@ public class AttemptServiceImpl implements AttemptService {
                 .build();
 
         attempt = attemptRepository.save(attempt);
-        return attemptMapper.toAttemptStartResponse(attempt);
+        return attempt;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Question> getNextQuestion(NextQuestionRequest request) {
+        var attempt = attemptRepository.findWithCourseByIdAndUserId(request.getAttemptId(), request.getUserId())
+                .orElseThrow(() -> Status.NOT_FOUND
+                        .withDescription("Попытка не найдена или не принадлежит пользователю")
+                        .asRuntimeException());
+
+        Set<Long> answeredIds = answerRepository.findAllByAttempt(attempt).stream()
+                .map(answer -> answer.getQuestion().getId())
+                .collect(Collectors.toSet());
+
+        return attempt.getCourse().getQuestions().stream()
+                .filter(q -> !answeredIds.contains(q.getId()))
+                .findFirst();
     }
 
     @Override

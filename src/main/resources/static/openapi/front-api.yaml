@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Interview Simulator API
-  version: 1.0.0
+  version: 2.0.0
 
 paths:
   /auth/register:
@@ -302,6 +302,30 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /v2/courses/{course_id}/attempt:
+    post:
+      summary: Начать новую попытку прохождения курса
+      description: |
+        Создает сессию интервью. В отличие от v1, не возвращает список вопросов.
+        Дальнейшее получение вопросов происходит через gRPC сервис `QuestionService.GetNextQuestion`.
+      tags:
+        - Attempts
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '201':
+          description: Попытка успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttemptStartResponseV2'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -551,6 +575,29 @@ components:
           example: 78
         overall_feedback:
           type: string
+
+    AttemptStartResponseV2:
+      type: object
+      required:
+        - attempt_id
+        - course_id
+        - status
+      properties:
+        attempt_id:
+          type: integer
+          format: int64
+          example: 501
+        course_id:
+          type: integer
+          format: int64
+          example: 101
+        status:
+          type: string
+          example: in_progress
+        timestamp_start:
+          type: string
+          format: date-time
+          example: "2023-10-27T10:00:00Z"
 
     AttemptStartResponse:
       type: object
