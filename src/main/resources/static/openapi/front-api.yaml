@@ -105,6 +105,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CourseDto'
+  /admin/courses:
     post:
       summary: Создать новый курс
       tags:
@@ -145,6 +146,7 @@ paths:
                 $ref: '#/components/schemas/CourseDetail'
         '404':
           $ref: '#/components/responses/NotFound'
+  /admin/courses/{course_id}:
     put:
       summary: Обновить существующий курс
       tags:
@@ -546,10 +548,15 @@ components:
         timestamp_end:
           type: string
           format: date-time
-        overall_score:
+        overall_answer_score:
           type: integer
           example: 78
-        overall_feedback:
+        overall_answer_feedback:
+          type: string
+        overall_speech_score:
+          type: integer
+          example: 78
+        overall_speech_feedback:
           type: string
 
     AttemptStartResponse:
@@ -622,9 +629,13 @@ components:
           format: int64
         user_answer:
           type: string
-        score:
+        answer_score:
           type: integer
-        feedback:
+        speech_score:
+          type: integer
+        answer_feedback:
+          type: string
+        speech_feedback:
           type: string
         created_at:
           type: string
