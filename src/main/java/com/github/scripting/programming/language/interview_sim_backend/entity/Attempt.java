@@ -37,10 +37,17 @@ public class Attempt {
 
     @Column(name = "overall_score")
     @Builder.Default
-    private Integer overallScore = null;
+    private Integer overallAnswerScore = null;
 
     @Column(name = "overall_feedback", columnDefinition = "TEXT")
-    private String overallFeedback;
+    private String overallAnswerFeedback;
+
+    @Column(name = "overall_speech_score")
+    @Builder.Default
+    private Integer overallSpeechScore = null;
+
+    @Column(name = "overall_speech_feedback", columnDefinition = "TEXT")
+    private String overallSpeechFeedback;
 
     @CreationTimestamp
     @Column(name = "timestamp_start", nullable = false, updatable = false)

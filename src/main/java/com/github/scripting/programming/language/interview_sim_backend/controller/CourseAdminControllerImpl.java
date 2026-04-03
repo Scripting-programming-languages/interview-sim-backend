@@ -14,18 +14,18 @@ public class CourseAdminControllerImpl implements CoursesAdminApi {
     private final CourseService courseService;
 
     @Override
-    public ResponseEntity<Void> coursesCourseIdDelete(Long courseId) {
+    public ResponseEntity<Void> adminCoursesCourseIdDelete(Long courseId) {
         courseService.deleteCourse(courseId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<CourseDto> coursesCourseIdPut(Long courseId, CourseCreateRequest courseCreateRequest) {
+    public ResponseEntity<CourseDto> adminCoursesCourseIdPut(Long courseId, CourseCreateRequest courseCreateRequest) {
         return ResponseEntity.ok(courseService.updateCourse(courseId, courseCreateRequest));
     }
 
     @Override
-    public ResponseEntity<CourseDto> coursesPost(CourseCreateRequest courseCreateRequest) {
+    public ResponseEntity<CourseDto> adminCoursesPost(CourseCreateRequest courseCreateRequest) {
         return ResponseEntity.ok(courseService.createCourse(courseCreateRequest));
     }
 }
