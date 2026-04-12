@@ -2,6 +2,7 @@ package com.github.scripting.programming.language.interview_sim_backend.service.
 
 import com.github.scripting.programming.language.interview_sim_backend.dto.EstimateAnswerRequestDto;
 import com.github.scripting.programming.language.interview_sim_backend.dto.FeedbackScore;
+import com.github.scripting.programming.language.interview_sim_backend.dto.SummaryResponseDto;
 import com.github.scripting.programming.language.interview_sim_backend.entity.Attempt;
 import com.github.scripting.programming.language.interview_sim_backend.entity.AttemptStatus;
 import com.github.scripting.programming.language.interview_sim_backend.exception.BaseApiException;
@@ -17,7 +18,6 @@ import com.github.scripting.programming.language.interview_sim_backend.service.F
 import com.github.scripting.programming.language.model.AttemptDetail;
 import com.github.scripting.programming.language.model.AttemptStartResponse;
 import com.github.scripting.programming.language.model.AttemptSummary;
-import com.github.scripting.programming.language.model.UserAnswerResult;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -43,10 +45,10 @@ public class AttemptServiceImpl implements AttemptService {
     private final AnswerService answerService;
     private final FeedbackSummarizer feedbackSummarizer;
 
-    private static int getOverallScore(List<FeedbackScore> feedbackScores) {
+    private static int getOverallScore(List<FeedbackScore> feedbackScores, ToIntFunction<FeedbackScore> fieldExtractorFunction) {
         return (int) Math.round(
                 feedbackScores.stream()
-                        .collect(Collectors.averagingInt(FeedbackScore::score))
+                        .collect(Collectors.averagingInt(fieldExtractorFunction))
         );
     }
 
@@ -111,6 +113,7 @@ public class AttemptServiceImpl implements AttemptService {
     @Transactional
     public AttemptDetail finishAttempt(Long attemptId, Long userId) {
         /**
+         * TODO: remove @transactional here and replace in inner methods
          * 1. Получить Attempt с проверкой по attemptId и userId
          * 2. Взять все фидбеки по всем ответам, очистить от null. (проверить, если список будет пустым, то сразу отдать)
          * 3. Список этого фидбека закинуть в мл на суммаризацию
@@ -126,8 +129,8 @@ public class AttemptServiceImpl implements AttemptService {
         }
         var attemptAnswers = attempt.getAnswers();
         List<FeedbackScore> feedbackScores = attemptAnswers.stream()
-                .filter(ans -> StringUtils.isNotEmpty(ans.getFeedback()) && ans.getScore() != null)
-                .map(ans -> new FeedbackScore(ans.getFeedback(), ans.getScore()))
+                .filter(ans -> StringUtils.isNotEmpty(ans.getAnswerFeedback()) && ans.getAnswerScore() != null)
+                .map(ans -> new FeedbackScore(ans.getAnswerFeedback(), ans.getAnswerScore(), ans.getSpeechScore(), ans.getSpeechFeedback()))
                 .toList();
         if (feedbackScores.isEmpty()) {
             attempt.setStatus(AttemptStatus.FINISHED);
@@ -136,18 +139,26 @@ public class AttemptServiceImpl implements AttemptService {
             return attemptMapper.toAttemptDetail(attempt);
         }
 
-        Integer meanScore = getOverallScore(feedbackScores);
-        var summarize = feedbackSummarizer.summarize(
-                feedbackScores.stream()
-                        .map(FeedbackScore::feedback)
-                        .toList()
+        attempt.setOverallAnswerScore(getOverallScore(feedbackScores, FeedbackScore::answer_score));
+        attempt.setOverallAnswerFeedback(
+                getSummarize(feedbackScores, FeedbackScore::answer_feedback).summaryFeedback()
         );
-        attempt.setOverallScore(meanScore);
-        attempt.setOverallFeedback(summarize.summaryFeedback());
+        attempt.setOverallSpeechScore(getOverallScore(feedbackScores, FeedbackScore::speech_score));
+        attempt.setOverallSpeechFeedback(
+                getSummarize(feedbackScores, FeedbackScore::speech_feedback).summaryFeedback()
+        );
         attempt.setStatus(AttemptStatus.FINISHED);
         attempt.setTimestampEnd(currentTime);
         attemptRepository.save(attempt);
 
         return attemptMapper.toAttemptDetail(attempt);
+    }
+
+    private SummaryResponseDto getSummarize(List<FeedbackScore> feedbackScores, Function<FeedbackScore, String> fieldExtractorFunction) {
+        return feedbackSummarizer.summarize(
+                feedbackScores.stream()
+                        .map(fieldExtractorFunction)
+                        .toList()
+        );
     }
 }
