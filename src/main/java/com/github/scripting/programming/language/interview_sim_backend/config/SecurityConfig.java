@@ -62,12 +62,9 @@ public class SecurityConfig {
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http, InMemoryUserDetailsManager adminManager) {
         return http
                 .cors(withDefaults())
-                .securityMatcher("/courses/**")
+                .securityMatcher("/admin/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/courses/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/courses/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/courses/**").authenticated()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->

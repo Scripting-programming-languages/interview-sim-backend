@@ -38,10 +38,16 @@ public class Answer {
     private AnswerStatus status = AnswerStatus.ESTIMATING;
 
     @Column(name = "score")
-    private Integer score;
+    private Integer answerScore;
 
     @Column(name = "feedback", columnDefinition = "TEXT")
-    private String feedback;
+    private String answerFeedback;
+
+    @Column(name = "speech_score")
+    private Integer speechScore;
+
+    @Column(name = "speech_feedback", columnDefinition = "TEXT")
+    private String speechFeedback;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

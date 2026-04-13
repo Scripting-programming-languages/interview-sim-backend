@@ -8,8 +8,6 @@ import com.github.scripting.programming.language.interview_sim_backend.entity.Qu
 import com.github.scripting.programming.language.interview_sim_backend.exception.EntityNotExist;
 import com.github.scripting.programming.language.interview_sim_backend.repository.AnswerRepository;
 import com.github.scripting.programming.language.interview_sim_backend.service.AnswerService;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +38,10 @@ public class AnswerServiceImpl implements AnswerService {
                 .orElseThrow(entityNotExistSupplier(answerEstimationMsg.answerId()));
 
         answer.setUserAnswer(answerEstimationMsg.transcribedText());
-        answer.setScore(answerEstimationMsg.score());
-        answer.setFeedback(answerEstimationMsg.textFeedback());
+        answer.setAnswerScore(answerEstimationMsg.score());
+        answer.setAnswerFeedback(answerEstimationMsg.textFeedback());
+        answer.setSpeechScore(answerEstimationMsg.speechScore());
+        answer.setSpeechFeedback(answerEstimationMsg.speechFeedback());
 
         return answerRepository.save(answer);
     }
