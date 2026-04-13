@@ -100,6 +100,20 @@ services:
       - kafka-net
       - db-net
 
+  # Для проксирования grpc запросов
+  envoy:
+    image: envoyproxy/envoy:v1.30-latest
+    container_name: envoy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    depends_on:
+      - backend
+    networks:
+      - kafka-net
+      - db-net
+
 networks:
   kafka-net:
     external: true
