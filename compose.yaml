@@ -88,6 +88,7 @@ services:
         condition: service_healthy
     ports:
       - "8081:8081"
+      - "9090:9090"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - DB_URL=jdbc:postgresql://postgres:5432/mydatabase
