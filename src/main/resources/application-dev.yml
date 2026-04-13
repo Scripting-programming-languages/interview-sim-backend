@@ -48,6 +48,15 @@ spring:
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.trusted.packages: "com.github.scripting.programming.language.interview_sim_backend.dto"
+  grpc:
+    server:
+      port: 9090
+      grpc-web:
+        enabled: true
+      cors:
+        allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+        allowed-methods: "POST, OPTIONS"
+        allowed-headers: "Content-Type, x-grpc-web, x-user-agent"
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/mydatabase}
     username: ${DB_USERNAME:myuser}

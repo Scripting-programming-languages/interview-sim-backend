@@ -3,6 +3,7 @@ package com.github.scripting.programming.language.interview_sim_backend.mapper;
 import com.github.scripting.programming.language.interview_sim_backend.entity.Attempt;
 import com.github.scripting.programming.language.model.AttemptDetail;
 import com.github.scripting.programming.language.model.AttemptStartResponse;
+import com.github.scripting.programming.language.model.AttemptStartResponseV2;
 import com.github.scripting.programming.language.model.AttemptSummary;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,6 +18,10 @@ public interface AttemptMapper {
     @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "questions", source = "course.questions")
     AttemptStartResponse toAttemptStartResponse(Attempt attempt);
+
+    @Mapping(target = "attemptId", source = "id")
+    @Mapping(target = "courseId", source = "course.id")
+    AttemptStartResponseV2 toAttemptStartResponseV2(Attempt attempt);
 
     @Mapping(target = "attemptId", source = "id")
     AttemptDetail toAttemptDetail(Attempt attempt);

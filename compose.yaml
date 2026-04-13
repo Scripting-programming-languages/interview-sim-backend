@@ -88,6 +88,7 @@ services:
         condition: service_healthy
     ports:
       - "8081:8081"
+      - "9090:9090"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - DB_URL=jdbc:postgresql://postgres:5432/mydatabase
@@ -95,6 +96,20 @@ services:
       - SERVER_PORT=8081
       - CORS_ALLOWED_ORIGINS=http://localhost:5173
       - ML_URL=http://host.docker.internal:8000
+    networks:
+      - kafka-net
+      - db-net
+
+  # Для проксирования grpc запросов
+  envoy:
+    image: envoyproxy/envoy:v1.30-latest
+    container_name: envoy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    depends_on:
+      - backend
     networks:
       - kafka-net
       - db-net

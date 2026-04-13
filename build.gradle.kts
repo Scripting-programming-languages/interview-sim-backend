@@ -3,12 +3,17 @@ plugins {
 	id("org.springframework.boot") version "4.0.2"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.openapi.generator") version "7.19.0"
+	id("com.google.protobuf") version "0.9.4"
 }
+
+
 
 group = "com.github.scripting.programming.language"
 version = "0.0.1-SNAPSHOT"
 description = "Backend for interview simulator project"
-
+val springGrpcVersion = "1.1.0-SNAPSHOT"
+val protobufVersion = "3.25.5"
+val grpcVersion = "1.69.0"
 val mapstructVersion = "1.6.3"
 
 java {
@@ -16,6 +21,13 @@ java {
 		languageVersion = JavaLanguageVersion.of(25)
 	}
 }
+
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.grpc:spring-grpc-dependencies:$springGrpcVersion")
+	}
+}
+
 
 configurations {
 	compileOnly {
@@ -25,6 +37,8 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://repo.spring.io/snapshot") }
+	maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 dependencies {
@@ -38,6 +52,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-quartz")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+
+	implementation("org.springframework.grpc:spring-grpc-dependencies:1.1.0-M1")
+	implementation("org.springframework.grpc:spring-grpc-spring-boot-starter:$springGrpcVersion")
+	implementation("io.grpc:grpc-protobuf:$grpcVersion")
+	implementation("io.grpc:grpc-stub:$grpcVersion")
+
 	implementation("org.apache.httpcomponents.client5:httpclient5")
 	implementation("io.jsonwebtoken:jjwt-api:0.13.0")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
@@ -51,6 +71,7 @@ dependencies {
 	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 	compileOnly("org.projectlombok:lombok")
+	compileOnly("jakarta.annotation:jakarta.annotation-api:3.0.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
@@ -79,10 +100,20 @@ tasks.withType<Test> {
 
 tasks.compileJava {
 	dependsOn(tasks.openApiGenerate)
+	dependsOn("generateProto")
 }
 
-sourceSets.main {
-	java.srcDirs("src/main/java", "$projectDir/build/generated/openapi/src/main/java")
+sourceSets {
+	main {
+		java {
+			srcDirs(
+				"src/main/java",
+				"build/generated/openapi/src/main/java",
+				"build/generated/source/proto/main/grpc",
+				"build/generated/source/proto/main/java"
+			)
+		}
+	}
 }
 
 openApiGenerate {
@@ -104,4 +135,25 @@ openApiGenerate {
 		"openApiNullable" to "false",
 		"useJakartaEe" to "true"
 	)
+}
+
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:$protobufVersion"
+	}
+	plugins {
+		create("grpc") {
+			artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
+		}
+	}
+	generateProtoTasks {
+		all().forEach { task ->
+			task.plugins {
+				create("grpc") {
+					option("@generated=omit")
+				}
+			}
+		}
+	}
 }
