@@ -105,7 +105,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CourseDto'
-  /admin/courses:
     post:
       summary: Создать новый курс
       tags:
@@ -146,7 +145,6 @@ paths:
                 $ref: '#/components/schemas/CourseDetail'
         '404':
           $ref: '#/components/responses/NotFound'
-  /admin/courses/{course_id}:
     put:
       summary: Обновить существующий курс
       tags:

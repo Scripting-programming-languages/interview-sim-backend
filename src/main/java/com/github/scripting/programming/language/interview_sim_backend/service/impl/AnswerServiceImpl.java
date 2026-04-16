@@ -33,7 +33,7 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     @Transactional
-    public Answer updateAnswerByEstimation(AnswerEstimationMsg answerEstimationMsg) {
+    public Long updateAnswerByEstimation(AnswerEstimationMsg answerEstimationMsg) {
         var answer = answerRepository.findById(answerEstimationMsg.answerId())
                 .orElseThrow(entityNotExistSupplier(answerEstimationMsg.answerId()));
 
@@ -43,7 +43,8 @@ public class AnswerServiceImpl implements AnswerService {
         answer.setSpeechScore(answerEstimationMsg.speechScore());
         answer.setSpeechFeedback(answerEstimationMsg.speechFeedback());
 
-        return answerRepository.save(answer);
+        var savedAnswer = answerRepository.save(answer);
+        return savedAnswer.getAttempt().getId();
     }
 
     private static Supplier<EntityNotExist> entityNotExistSupplier(Long answerId) {

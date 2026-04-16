@@ -18,6 +18,7 @@ import com.github.scripting.programming.language.model.AttemptDetail;
 import com.github.scripting.programming.language.model.AttemptSummary;
 import io.grpc.Status;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AttemptServiceImpl implements AttemptService {
     private final AttemptRepository attemptRepository;
     private final CourseRepository courseRepository;
@@ -146,16 +148,28 @@ public class AttemptServiceImpl implements AttemptService {
         if (!attempt.getStatus().equals(AttemptStatus.IN_PROGRESS)) {
             throw new BaseApiException(BAD_REQUEST, "Попытка уже завершена");
         }
+        attempt.setStatus(AttemptStatus.FINISHED);
+        attempt.setTimestampEnd(currentTime);
+        var estimatedAttempt = estimateOverallStat(attempt.getId());
+        return attemptMapper.toAttemptDetail(estimatedAttempt);
+    }
+
+    @Override
+    @Transactional
+    public Attempt estimateOverallStat(Long attemptId) {
+        Attempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new BaseApiException(NOT_FOUND, "Такой попытки не существует"));
         var attemptAnswers = attempt.getAnswers();
+
         List<FeedbackScore> feedbackScores = attemptAnswers.stream()
                 .filter(ans -> StringUtils.isNotEmpty(ans.getAnswerFeedback()) && ans.getAnswerScore() != null)
                 .map(ans -> new FeedbackScore(ans.getAnswerFeedback(), ans.getAnswerScore(), ans.getSpeechScore(), ans.getSpeechFeedback()))
                 .toList();
+        log.info("Start estimating overall stat {}", attempt.getId());
         if (feedbackScores.isEmpty()) {
-            attempt.setStatus(AttemptStatus.FINISHED);
-            attempt.setTimestampEnd(currentTime);
+            log.info("Feedback scores is empty! Finish estimating overall stat {}", attempt.getId());
             attemptRepository.save(attempt);
-            return attemptMapper.toAttemptDetail(attempt);
+            return attempt;
         }
 
         attempt.setOverallAnswerScore(getOverallScore(feedbackScores, FeedbackScore::answer_score));
@@ -166,11 +180,8 @@ public class AttemptServiceImpl implements AttemptService {
         attempt.setOverallSpeechFeedback(
                 getSummarize(feedbackScores, FeedbackScore::speech_feedback).summaryFeedback()
         );
-        attempt.setStatus(AttemptStatus.FINISHED);
-        attempt.setTimestampEnd(currentTime);
-        attemptRepository.save(attempt);
-
-        return attemptMapper.toAttemptDetail(attempt);
+        log.info("Finish estimating overall stat {}", attempt.getId());
+        return attemptRepository.save(attempt);
     }
 
     private SummaryResponseDto getSummarize(List<FeedbackScore> feedbackScores, Function<FeedbackScore, String> fieldExtractorFunction) {

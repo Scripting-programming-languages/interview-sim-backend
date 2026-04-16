@@ -8,7 +8,8 @@ import com.github.scripting.programming.language.interview_sim_backend.entity.Qu
 public interface AnswerService {
     Answer save(Attempt attempt, Question question);
 
-    Answer updateAnswerByEstimation(AnswerEstimationMsg answerEstimationMsg);
+    // Return attempt id
+    Long updateAnswerByEstimation(AnswerEstimationMsg answerEstimationMsg);
 
     boolean existAnswer(Attempt attempt, Question question);
 }

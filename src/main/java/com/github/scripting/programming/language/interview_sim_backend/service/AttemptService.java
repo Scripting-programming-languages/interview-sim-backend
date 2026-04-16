@@ -22,4 +22,6 @@ public interface AttemptService {
     AttemptDetail finishAttempt(Long attemptId, Long userId);
 
     Optional<Question> getNextQuestion(NextQuestionRequest request);
+
+    Attempt estimateOverallStat(Long attemptId);
 }
