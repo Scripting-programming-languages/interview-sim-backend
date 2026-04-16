@@ -37,40 +37,37 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(2)
     @SneakyThrows
-    public SecurityFilterChain userSecurityFilterChain(HttpSecurity http, UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
+    public SecurityFilterChain userSecurityFilterChain(
+            HttpSecurity http,
+            UserDetailsService userDetailsService,
+            JwtAuthFilter jwtAuthFilter,
+            InMemoryUserDetailsManager adminManager
+    ) {
         return http
                 .cors(withDefaults())
-                .authorizeHttpRequests(authorize -> authorize
+                .authorizeHttpRequests(auth -> auth
+
+                        // PUBLIC
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses", "/courses/**").permitAll()
+
+                        // ADMIN ONLY
+                        .requestMatchers(HttpMethod.POST, "/courses").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/courses/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/courses/**").hasAuthority("ADMIN")
+
+                        // AUTH
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
-
-    @Bean
-    @Order(1)
-    @SneakyThrows
-    public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http, InMemoryUserDetailsManager adminManager) {
-        return http
-                .cors(withDefaults())
-                .securityMatcher("/admin/**")
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .userDetailsService(adminManager)
                 .httpBasic(withDefaults())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
                 .build();
     }
 

@@ -1,7 +1,6 @@
 logging:
   level:
     root: INFO
-    org.apache.hc.client5.http: DEBUG
 
 server:
   port: ${SERVER_PORT:8081}

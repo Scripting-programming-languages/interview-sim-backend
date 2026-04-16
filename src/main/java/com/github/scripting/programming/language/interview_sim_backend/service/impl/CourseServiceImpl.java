@@ -6,6 +6,7 @@ import com.github.scripting.programming.language.interview_sim_backend.entity.Co
 import com.github.scripting.programming.language.interview_sim_backend.entity.Question;
 import com.github.scripting.programming.language.interview_sim_backend.exception.BaseApiException;
 import com.github.scripting.programming.language.interview_sim_backend.mapper.CourseMapper;
+import com.github.scripting.programming.language.interview_sim_backend.repository.AttemptRepository;
 import com.github.scripting.programming.language.interview_sim_backend.repository.CategoryRepository;
 import com.github.scripting.programming.language.interview_sim_backend.repository.CourseRepository;
 import com.github.scripting.programming.language.interview_sim_backend.repository.QuestionRepository;
@@ -29,6 +30,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final CategoryRepository categoryRepository;
     private final QuestionRepository questionRepository;
+    private final AttemptRepository attemptRepository;
     private final CourseMapper courseMapper;
 
     @Override
@@ -61,6 +63,9 @@ public class CourseServiceImpl implements CourseService {
     public void deleteCourse(Long courseId) {
         var course = courseRepository.findById(courseId)
                         .orElseThrow(() -> new BaseApiException(HttpStatus.NOT_FOUND, "Такого курса нет"));
+        if (attemptRepository.existsByCourseId(courseId)) {
+            throw new BaseApiException(HttpStatus.BAD_REQUEST, "Существуют попытки с этим курсом!");
+        }
         courseRepository.delete(course);
     }
 
