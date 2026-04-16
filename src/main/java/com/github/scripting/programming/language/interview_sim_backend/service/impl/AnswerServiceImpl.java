@@ -42,6 +42,7 @@ public class AnswerServiceImpl implements AnswerService {
         answer.setAnswerFeedback(answerEstimationMsg.textFeedback());
         answer.setSpeechScore(answerEstimationMsg.speechScore());
         answer.setSpeechFeedback(answerEstimationMsg.speechFeedback());
+        answer.setStatus(AnswerStatus.FINISHED);
 
         var savedAnswer = answerRepository.save(answer);
         return savedAnswer.getAttempt().getId();

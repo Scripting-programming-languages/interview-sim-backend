@@ -29,4 +29,6 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
                 WHERE att.user.id = :userId
             """)
     List<Attempt> findAllWithCourseByUserId(@Param("userId") Long userId);
+
+    boolean existsByCourseId(Long id);
 }
